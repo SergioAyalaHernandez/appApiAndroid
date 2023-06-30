@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">apiAplication</string>
+    <string name="titulo_tabla_vehiculos">Tabla de vehículos</string>
+</resources>
