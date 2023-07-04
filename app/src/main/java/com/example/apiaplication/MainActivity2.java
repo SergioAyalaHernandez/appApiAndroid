@@ -32,7 +32,7 @@ import org.json.JSONObject;
 
 public class MainActivity2 extends AppCompatActivity {
 
-    private static final String API_URL = "http://34.16.137.107:80/api/car/listar";
+    private static final String API_URL = "http://34.125.204.221:80/api/car/listar";
 
     private RequestQueue requestQueue;
     private TableLayout tableLayout;
@@ -104,6 +104,16 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity2.this, AddVehicleActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        Button homeButtonhome = findViewById(R.id.inicioButton);
+        homeButtonhome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity2.this, MainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -203,7 +213,7 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     private void deleteCarData(String id) {
-        String deleteUrl = "http://34.16.137.107/api/car/delete/" + id;
+        String deleteUrl = "http://34.125.204.221:80/api/car/delete/" + id;
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, deleteUrl, null,
                 response -> {
                     // Eliminación exitosa, realizar cualquier acción adicional requerida

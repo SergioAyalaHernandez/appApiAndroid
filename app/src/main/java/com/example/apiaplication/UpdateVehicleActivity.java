@@ -1,10 +1,9 @@
 package com.example.apiaplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -13,9 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,13 +24,18 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.HashMap;
+import java.util.Map;
+
+public class UpdateVehicleActivity extends Activity {
+
 
     private static final String API_URL = "http://34.125.204.221:80/api/car/listar";
 
@@ -44,32 +47,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        boolean isNewInstance = getIntent().getBooleanExtra("isNewInstance", false);
-        if (isNewInstance) {
-            refreshActivity();
-        }
+        setContentView(R.layout.activity_update_vehicle);
+
         tableLayout = findViewById(R.id.tableLayout);
         requestQueue = Volley.newRequestQueue(this);
         updateButton = findViewById(R.id.updateButton);
 
+
         fetchCarData();
         Button updateButton = findViewById(R.id.updateButton);
         Button addButton = findViewById(R.id.addVehicleButton);
-        Button deleteButton = findViewById(R.id.deleteVehicleButton);
-        Button upButton = findViewById(R.id.updateVehiculo);
-
-        upButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
-        upButton.setTextColor(Color.WHITE);
+        Button homeButton = findViewById(R.id.inicioButton);
+        homeButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
+        homeButton.setTextColor(Color.WHITE);
         updateButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
         updateButton.setTextColor(Color.WHITE);
-        deleteButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
-        deleteButton.setTextColor(Color.WHITE);
-        addButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
-        addButton.setTextColor(Color.WHITE);
+        //addButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 1, 19, 135)));
+        //addButton.setTextColor(Color.WHITE);
 
         TableRow headerRow = new TableRow(this);
 
+        TextView idHeaderTextView = createHeaderTextView("Id");
+        headerRow.addView(idHeaderTextView);
+        TableRow.LayoutParams idTextViewParams = new TableRow.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.4f);
+        idHeaderTextView.setLayoutParams(idTextViewParams);
 
         TextView nameHeaderTextView = createHeaderTextView("Name");
         headerRow.addView(nameHeaderTextView);
@@ -77,35 +79,20 @@ public class MainActivity extends AppCompatActivity {
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.6f);
         nameHeaderTextView.setLayoutParams(nameTextViewParams);
 
-        TextView brandHeaderTextView = createHeaderTextView("Brand");
-        headerRow.addView(brandHeaderTextView);
-        TableRow.LayoutParams brandTextViewParams = new TableRow.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.6f);
-        brandHeaderTextView.setLayoutParams(brandTextViewParams);
-
-
         TextView yearHeaderTextView = createHeaderTextView("Year");
         headerRow.addView(yearHeaderTextView);
         TableRow.LayoutParams yearTextViewParams = new TableRow.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.5f);
         yearHeaderTextView.setLayoutParams(yearTextViewParams);
 
-        TextView descriptionHeaderTextView = createHeaderTextView("Description");
-        headerRow.addView(descriptionHeaderTextView);
-        TableRow.LayoutParams descriptionTextViewParams = new TableRow.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.7f);
-        descriptionHeaderTextView.setLayoutParams(descriptionTextViewParams);
-
-        TextView payDayHeaderTextView = createHeaderTextView("Pay Day");
-        headerRow.addView(payDayHeaderTextView);
-        TableRow.LayoutParams payTextViewParams = new TableRow.LayoutParams(
+        TextView actionHeaderTextView = createHeaderTextView("Action");
+        headerRow.addView(actionHeaderTextView);
+        TableRow.LayoutParams actionTextViewParams = new TableRow.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.5f);
-        payDayHeaderTextView.setLayoutParams(payTextViewParams);
-
+        actionHeaderTextView.setLayoutParams(actionTextViewParams);
 
         tableLayout.addView(headerRow, new TableLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,42 +101,33 @@ public class MainActivity extends AppCompatActivity {
                 animateButtonClick();
                 refreshActivity();
             }
-
         });
 
         Button addVehicleButton = findViewById(R.id.addVehicleButton);
-        addVehicleButton.setOnClickListener(new View.OnClickListener()
-        {
+        addVehicleButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick (View v){
-                Intent intent = new Intent(MainActivity.this, AddVehicleActivity.class);
+            public void onClick(View v) {
+                Intent intent = new Intent(UpdateVehicleActivity.this, AddVehicleActivity.class);
                 startActivity(intent);
             }
         });
 
-        Button deleteVehicleButton = findViewById(R.id.deleteVehicleButton);
-        deleteVehicleButton.setOnClickListener(new View.OnClickListener()
-        {
+        Button homeButtonhome = findViewById(R.id.inicioButton);
+        homeButtonhome.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick (View v){
-                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+            public void onClick(View v) {
+                Intent intent = new Intent(UpdateVehicleActivity.this, MainActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        Button updateVehicleButton = findViewById(R.id.updateVehiculo);
-        updateVehicleButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick (View v){
-                Intent intent = new Intent(MainActivity.this, UpdateVehicleActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
     }
 
+    private void refreshActivity() {
+        recreate();
+    }
+
     private void fetchCarData() {
-        requestQueue.cancelAll("");
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, API_URL, null,
                 response -> {
                     try {
@@ -158,15 +136,12 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject carObject = carArray.getJSONObject(i);
                             String id = carObject.getString("_id");
                             String name = carObject.getString("name");
-                            String brand = carObject.getString("brand");
                             String year = carObject.getString("year");
-                            String description = carObject.getString("description");
-                            String payDay = carObject.getString("payDay");
-                            String link = carObject.getString("link");
+
 
                             // Verificar si la fila ya existe en la tabla antes de agregarla
-                            if (!isRowExists(name, brand, year, description, payDay, link)) {
-                                addRowToTable(name, brand, year, description, payDay, link);
+                            if (!isRowExists(id, name, year)) {
+                                addRowToTable(id, name, year);
                             }
                         }
                     } catch (JSONException e) {
@@ -184,15 +159,15 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(request);
     }
 
-    private void refreshActivity() {
-        recreate();
-    }
-
-    private void addRowToTable(String name, String brand, String year, String description,
-                               String payDay, String link) {
+    private void addRowToTable(String id, String name, String year) {
         TableRow row = new TableRow(this);
-        row.setPadding(0, 8, 0, 8); // Agrega un espacio vertical de 8dp entre cada cuadro
+        row.setPadding(0, 8, 0, 8);
 
+        TextView idTextView = createTextViewWithStyle(getShortenedId(id));
+        TableRow.LayoutParams idTextViewParams = new TableRow.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.4f);
+        idTextView.setLayoutParams(idTextViewParams);
+        row.addView(idTextView);
 
         TextView nameTextView = createTextViewWithStyle(name);
         TableRow.LayoutParams nameTextViewParams = new TableRow.LayoutParams(
@@ -200,34 +175,38 @@ public class MainActivity extends AppCompatActivity {
         nameTextView.setLayoutParams(nameTextViewParams);
         row.addView(nameTextView);
 
-        TextView brandTextView = createTextViewWithStyle(brand);
-        TableRow.LayoutParams brandTextViewParams = new TableRow.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.6f);
-        brandTextView.setLayoutParams(brandTextViewParams);
-        row.addView(brandTextView);
-
         TextView yearTextView = createTextViewWithStyle(year);
         TableRow.LayoutParams yearTextViewParams = new TableRow.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.5f);
         yearTextView.setLayoutParams(yearTextViewParams);
         row.addView(yearTextView);
 
-        TextView descriptionTextView = createTextViewWithStyle(description);
-        TableRow.LayoutParams descriptionTextViewParams = new TableRow.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.7f);
-        descriptionTextView.setLayoutParams(descriptionTextViewParams);
-        row.addView(descriptionTextView);
-
-        TextView payDayTextView = createTextViewWithStyle(payDay);
-        TableRow.LayoutParams payDayTextViewParams = new TableRow.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.5f);
-        payDayTextView.setLayoutParams(payDayTextViewParams);
-        row.addView(payDayTextView);
+        Button updateButton = createUpdateButton(id); // Nuevo botón de actualización
+        TableRow.LayoutParams updateButtonParams = new TableRow.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.4f);
+        updateButton.setLayoutParams(updateButtonParams);
+        row.addView(updateButton);
 
         tableLayout.addView(row, new TableLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
+    private Button createUpdateButton(String id) {
+        Button button = new Button(this);
+        button.setText("Update");
+        button.setTextColor(Color.WHITE);
+        button.setBackgroundResource(R.drawable.update_button_background);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UpdateVehicleActivity.this, updateCar.class);
+                intent.putExtra("vehicleId", id); // Pasar el ID del vehículo a la actividad de actualización
+                startActivity(intent);
+            }
+        });
+
+        return button;
+    }
 
     private TextView createTextViewWithStyle(String text) {
         TextView textView = new TextView(this);
@@ -240,48 +219,56 @@ public class MainActivity extends AppCompatActivity {
         return textView;
     }
 
-    private void showError() {
-        // Agregar aquí la lógica para mostrar un mensaje de error al usuario
-        // Puede ser un diálogo, una notificación o cualquier otro componente de la interfaz de usuario.
-        // Por ejemplo, puedes mostrar un Toast con un mensaje de error.
-        Toast.makeText(MainActivity.this, "Error al obtener los datos de la API", Toast.LENGTH_SHORT).show();
+
+
+    private void deleteCarData(String id) {
+        String deleteUrl = "http://34.125.204.221:80/api/car/delete/" + id;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, deleteUrl, null,
+                response -> {
+                    // Eliminación exitosa, realizar cualquier acción adicional requerida
+                    Toast.makeText(UpdateVehicleActivity.this, "Data deleted successfully", Toast.LENGTH_SHORT).show();
+                    fetchCarData(); // Actualizar la tabla después de eliminar los datos
+                },
+                error -> {
+                    // Error en la eliminación, mostrar un mensaje de error
+                    Toast.makeText(UpdateVehicleActivity.this, "Failed to delete data", Toast.LENGTH_SHORT).show();
+                    Log.e("MainActivity", "API request error: " + error.getMessage());
+                });
+
+        requestQueue.add(request);
+        refreshActivity();
     }
 
-    private boolean isRowExists(String name, String brand, String year, String description,
-                                String payDay, String link) {
+    private void showError() {
+        Toast.makeText(UpdateVehicleActivity.this, "Error al obtener los datos de la API", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isRowExists(String id, String name, String year) {
         int rowCount = tableLayout.getChildCount();
 
         for (int i = 0; i < rowCount; i++) {
             View view = tableLayout.getChildAt(i);
             if (view instanceof TableRow) {
                 TableRow row = (TableRow) view;
-                TextView nameTextView = (TextView) row.getChildAt(0);
-                TextView brandTextView = (TextView) row.getChildAt(1);
+                TextView idTextView = (TextView) row.getChildAt(0);
+                TextView nameTextView = (TextView) row.getChildAt(1);
                 TextView yearTextView = (TextView) row.getChildAt(2);
-                TextView descriptionTextView = (TextView) row.getChildAt(3);
-                TextView payDayTextView = (TextView) row.getChildAt(4);
 
-                // Verifica si alguno de los TextView es nulo antes de acceder a su contenido
-                if (nameTextView == null || brandTextView == null || yearTextView == null
-                        || descriptionTextView == null || payDayTextView == null) {
-                    continue; // Salta esta iteración si alguno de los TextView es nulo
+                if (idTextView == null || nameTextView == null || yearTextView == null) {
+                    continue;
                 }
 
+                String existingId = idTextView.getText().toString();
                 String existingName = nameTextView.getText().toString();
-                String existingBrand = brandTextView.getText().toString();
                 String existingYear = yearTextView.getText().toString();
-                String existingDescription = descriptionTextView.getText().toString();
-                String existingPayDay = payDayTextView.getText().toString();
 
-                if (existingName.equals(name) && existingBrand.equals(brand)
-                        && existingYear.equals(year) && existingDescription.equals(description)
-                        && existingPayDay.equals(payDay)) {
-                    return true; // La fila ya existe en la tabla
+                if (existingId.equals(id) && existingName.equals(name) && existingYear.equals(year)) {
+                    return true;
                 }
             }
         }
 
-        return false; // La fila no existe en la tabla
+        return false;
     }
 
     private TextView createHeaderTextView(String text) {
@@ -304,6 +291,12 @@ public class MainActivity extends AppCompatActivity {
         animatorSet.start();
     }
 
-
+    private String getShortenedId(String id) {
+        if (id.length() <= 3) {
+            return id;
+        } else {
+            return id.substring(0, 3) + "...";
+        }
+    }
 
 }

@@ -65,7 +65,7 @@ public class AddVehicleActivity extends Activity {
         // Puedes utilizar una biblioteca como Volley o Retrofit para realizar la solicitud POST
         // Aquí tienes un ejemplo básico utilizando Volley:
 
-        String url = "http://34.16.137.107:80/api/car/save";
+        String url = "http://34.125.204.221:80/api/car/save";
         StringRequest request = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override

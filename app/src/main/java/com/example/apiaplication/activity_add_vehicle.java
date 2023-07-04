@@ -54,7 +54,7 @@ public class activity_add_vehicle extends AppCompatActivity {
     }
 
     private void sendVehicleData(String name, String brand, String year, String description, String payDay, String link) {
-        String url = "http://34.16.137.107:80/api/car/save";
+        String url = "http://34.125.204.221:80/api/car/save";
         StringRequest request = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
